@@ -55,7 +55,14 @@ async function run() {
             const body = req.body;
             const result = await reviewCollection.insertOne(body);
             res.send(result);
-        })
+        });
+
+        app.get("/reviews/:email", verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await reviewCollection.find(query).toArray();
+            res.send(result);
+        });
     }
     finally {
 
