@@ -36,6 +36,25 @@ async function run() {
         const reviewCollection = database.collection("reviews");
         const projectCollection = database.collection("projects");
 
+        async function verifyAdmin(req, res, next) {
+            const requester = req.decoded.email;
+            const requesterAccount = await userCollection.findOne({ email: requester });
+            if (requesterAccount.role === "admin") {
+                next();
+            }
+            else {
+                res.status(403).send({ message: "Forbidden Access" });
+            }
+        }
+
+        app.get("/admin/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            const isAdmin = user.role === "admin";
+            res.send({ admin: isAdmin });
+        });
+
         app.put("/user", async (req, res) => {
             const body = req.body;
             const email = body.email;
@@ -64,7 +83,20 @@ async function run() {
             res.send(result);
         });
 
-        app.delete("/reviews/:id", async (req, res) => {
+        app.get("/admin/reviews", verifyAdmin, verifyJWT, async (req, res) => {
+            const query = {};
+            const result = await reviewCollection.find(query).toArray();
+            res.send(result);
+        });
+
+        app.delete("/reviews/:id", verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await reviewCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        app.delete("/admin/reviews/:id", verifyAdmin, verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await reviewCollection.deleteOne(query);
