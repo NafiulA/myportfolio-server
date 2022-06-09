@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const app = express();
@@ -61,6 +61,13 @@ async function run() {
             const email = req.params.email;
             const query = { email: email };
             const result = await reviewCollection.find(query).toArray();
+            res.send(result);
+        });
+
+        app.delete("/reviews/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await reviewCollection.deleteOne(query);
             res.send(result);
         });
     }
