@@ -70,6 +70,12 @@ async function run() {
             res.send({ result, accessToken });
         });
 
+        app.get("/reviews", async (req, res) => {
+            const query = {}
+            const result = await reviewCollection.find(query).toArray();
+            res.send(result);
+        });
+
         app.post("/reviews", verifyJWT, async (req, res) => {
             const body = req.body;
             const result = await reviewCollection.insertOne(body);
@@ -79,12 +85,6 @@ async function run() {
         app.get("/reviews/:email", verifyJWT, async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
-            const result = await reviewCollection.find(query).toArray();
-            res.send(result);
-        });
-
-        app.get("/admin/reviews", verifyAdmin, verifyJWT, async (req, res) => {
-            const query = {};
             const result = await reviewCollection.find(query).toArray();
             res.send(result);
         });
