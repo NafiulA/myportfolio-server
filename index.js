@@ -102,6 +102,13 @@ async function run() {
             const result = await reviewCollection.deleteOne(query);
             res.send(result);
         });
+
+        app.get("/projects", async (req, res) => {
+            const query = {};
+            const result = await projectCollection.find(query).toArray();
+            res.send(result.reverse());
+        })
+
     }
     finally {
 
